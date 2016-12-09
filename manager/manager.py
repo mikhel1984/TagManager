@@ -15,6 +15,7 @@ KEYS = \
 "Manager: \n\
 Lelt, Right - change directory\n\
 Ctrl+T - tag edit\n\
+Ctrl+Right - word complete\n\
 Ctrl+S - open search window\n\
 \nSearch window: \n\
 Ctrl+S - search \n\

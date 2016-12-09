@@ -156,3 +156,6 @@ class FileOperation:
    def tagDelete(self, tname):
       self.db.delTag(tname)
 
+   def tagsStartsWith(self, start):
+      return self.db.tagsStartsWith(start)
+

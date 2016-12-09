@@ -53,6 +53,7 @@ class FileList(Frame):
       self.taglist.bind('<Double-ButtonRelease-1>', self.tagEdit)
       self.taglist.bind('<Return>', self.tagApply)
       self.taglist.bind('<Escape>', self.tagExit)
+      self.taglist.bind('<Control-Right>', self.wordComplete)
       self.bind('<FocusIn>', self.makeActive)
       self.bind('<FocusOut>', self.makeNonActive)
       self.dir.grid(row=0, column=0, sticky='ns')
@@ -65,6 +66,10 @@ class FileList(Frame):
       self.position = None
 
       self.fo = fileOp
+
+      self.last_tag = ""
+      self.last_tag_lst = []
+      self.last_tag_num = 0
 
       self.folder_img = PhotoImage(file="./manager/img/folder.gif")
       self.file_img = PhotoImage(file="./manager/img/file.gif")
@@ -253,8 +258,17 @@ class FileList(Frame):
       fname = self.getName()
       self.tag_var.set(', '.join(self.path_tags[fname]))
 
-   #def correctDatabase(self, path):
-   #   "Delete files from database if they are not more in current directory"
-   #   for f in self.fo.getFiles(path):
-   #      if f not in self.path_file:
-   #         self.fo.deleteFromBase(path, f)
+   def wordComplete(self, ev):
+      tag_str = self.tag_var.get()
+      tag_lst = [s.strip() for s in tag_str.split(',')]
+      start = tag_lst[-1]
+      if start == "": return
+      if start.startswith(self.last_tag) and len(self.last_tag_lst) > 0:
+         self.last_tag_num = (self.last_tag_num + 1) % len(self.last_tag_lst)
+      else:
+         self.last_tag_lst = self.fo.tagsStartsWith(start)
+         if len(self.last_tag_lst) == 0: return
+         self.last_tag, self.last_tag_num = start, 0
+      tag_lst[-1] = self.last_tag_lst[self.last_tag_num]
+      self.tag_var.set(', '.join(tag_lst))
+

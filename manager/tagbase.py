@@ -176,6 +176,12 @@ class TagBase:
       for f in cursor.fetchall():
          if not os.path.exists(os.path.join(*f)): self.delFile(*f)
 
+   def tagsStartsWith(self, start):
+      cursor = self.db.cursor()
+      cursor.execute("SELECT t_name FROM tags WHERE t_name LIKE ?"
+                     "ORDER BY t_name", (start+'%',))
+      return [tag[0] for tag in cursor.fetchall()]
+
    def printTables(self):
       "Debug: print tables"
       cursor = self.db.cursor()

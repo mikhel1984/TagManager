@@ -43,6 +43,7 @@ class SearchWindow:
       self.search_btn.bind('<Button-1>', self.printFiles)
       self.slave.bind('<Control-s>', self.printFiles)
       self.tags_edt.bind('<Return>', self.printFiles)
+      self.tags_edt.bind('<Control-Right>', self.wordComplete)
       self.file_lst.bind('<ButtonRelease-1>', self.fileInfo)
       self.file_lst.bind('<Double-ButtonRelease-1>', self.exec)
       self.file_lst.bind('<Return>', self.exec)
@@ -51,6 +52,10 @@ class SearchWindow:
       self.slave.bind('<Control-o>', self.openPath)
 
       self.open_path = None
+
+      self.last_tag = ""
+      self.last_tag_lst = []
+      self.last_tag_num = 0
 
       self.tags = self.fo.tagList()
       self.reset(1)
@@ -133,6 +138,20 @@ class SearchWindow:
          self.fo.tagDelete(current)
          self.tags = self.fo.tagList()
          self.reset(1)
+
+   def wordComplete(self, ev):
+      tag_str = self.var.get()
+      tag_lst = [s.strip() for s in tag_str.split(',')]
+      start = tag_lst[-1]
+      if start == "": return
+      if start.startswith(self.last_tag) and len(self.last_tag_lst) > 0:
+         self.last_tag_num = (self.last_tag_num + 1) % len(self.last_tag_lst)
+      else:
+         self.last_tag_lst = self.fo.tagsStartsWith(start)
+         if len(self.last_tag_lst) == 0: return
+         self.last_tag, self.last_tag_num = start, 0
+      tag_lst[-1] = self.last_tag_lst[self.last_tag_num]
+      self.var.set(', '.join(tag_lst))
 
 
 
