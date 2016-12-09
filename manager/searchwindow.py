@@ -48,7 +48,7 @@ class SearchWindow:
       self.file_lst.bind('<Return>', self.exec)
       self.file_lst.bind('<ButtonRelease-3>', self.callMenu)
       self.slave.bind('<Escape>', lambda x: self.slave.destroy())
-      self.slave.bind('<Control-Return>', self.openPath)
+      self.slave.bind('<Control-o>', self.openPath)
 
       self.open_path = None
 
@@ -73,6 +73,7 @@ class SearchWindow:
       self.file_lst['fg'] = 'red'
       for tag in self.tags:
          self.file_lst.insert('end', tag)
+      self.file_lst.focus_set()
 
    def printFiles(self, ev):
       "Show result of search"
