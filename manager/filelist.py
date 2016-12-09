@@ -44,12 +44,12 @@ class FileList(Frame):
       self.list.tag_bind('dir', '<<TreeviewSelect>>', lambda x: self.tag_var.set(""))
       self.list.tag_bind('file', '<Return>', self.openFile)
       self.list.tag_bind('file', '<<TreeviewSelect>>', self.showTags)
-
+      self.list.tag_bind('file', '<Control-t>', self.tagEdit)
       self.list.bind('<F2>', self.rename)
       self.list.bind('<F7>', self.newDir)
       self.list.bind('<Delete>', self.remove)
       self.list.bind('<Left>', self.previousDirectory)
-      self.list.bind('<Control-t>', self.tagEdit)
+
       self.taglist.bind('<Double-ButtonRelease-1>', self.tagEdit)
       self.taglist.bind('<Return>', self.tagApply)
       self.taglist.bind('<Escape>', self.tagExit)
