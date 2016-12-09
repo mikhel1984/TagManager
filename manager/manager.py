@@ -1,10 +1,26 @@
 """Main window of file manager"""
 
 from tkinter import Frame, Menubutton, Menu, Image
+import tkinter.messagebox as msg
 
 from .filelist import FileList, PREVIOUS_DIR
 from .fileoperation import FileOperation
 from .searchwindow import SearchWindow
+
+ABOUT = \
+"TagManager - double panel manager with file tags\n\n\
+   2016 S.Mikhel - camis.dat@gmail.com"
+
+KEYS = \
+"Manager: \n\
+Lelt, Right - change directory\n\
+Ctrl+T - tag edit\n\
+Ctrl+S - open search window\n\
+\nSearch window: \n\
+Ctrl+S - search \n\
+Ctrl+R - reset\n\
+Ctrl+O - open directory with file"
+
 
 class TagManager:
    def __init__(self, root):
@@ -17,11 +33,13 @@ class TagManager:
       self.bar.grid(row=0, column=0, sticky='we')
       self.menuFile()
       self.menuTag()
+      self.menuHelp()
       self.panel[0].grid(row=1, column=0, sticky='ns')
       self.panel[1].grid(row=1, column=1, sticky='ns')
 
       self.root.bind('<F5>', self.copy)
       self.root.bind('<F6>', self.move)
+      self.root.bind('<F1>', lambda x: msg.showinfo("Keys", KEYS))
 
       self.root.bind('<Control-f>', self.openSearch)
       self.root.bind('<Control-q>', lambda x: self.root.destroy())
@@ -75,6 +93,14 @@ class TagManager:
       menu.add_separator({})
       menu.add_command(label='Quit (Ctrl+Q)', command=lambda: self.root.destroy())
       cbutton.configure(menu=menu)
+
+   def menuHelp(self):
+      hbutton = Menubutton(self.bar, text='Help', underline=0)
+      hbutton.grid(row=0, column=2, sticky='w')
+      menu = Menu(hbutton, tearoff=0)
+      menu.add_command(label='Keys (F1)', command=lambda: msg.showinfo("Keys", KEYS))
+      menu.add_command(label='About', command=lambda: msg.showinfo("About", ABOUT))
+      hbutton.configure(menu=menu)
 
    def openSearch(self, ev):
       "Open window for file search"
