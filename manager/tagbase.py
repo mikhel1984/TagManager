@@ -82,6 +82,10 @@ class TagBase:
                                 (path+'%', path))
       self.db.commit()
 
+   def delTag(self, tname):
+      self.db.cursor().execute("DELETE FROM tags WHERE t_name=?", (tname,))
+      self.db.commit()
+
 
    def changeFileName(self, new_nm, path, old_nm):
       "Change file name"

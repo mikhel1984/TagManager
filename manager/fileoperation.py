@@ -102,7 +102,7 @@ class FileOperation:
    def execute(self, fname):
       "Execute current file"
       nm, tp = os.path.splitext(os.path.split(fname)[1])
-      if tp: tp = tp[1:]
+      if tp: tp = tp[1:].lower()
       if tp in RUN_CMD.keys():
          return subprocess.call([RUN_CMD[tp], fname])
 
@@ -152,4 +152,7 @@ class FileOperation:
 
    def tagRename(self, new_name, old_name):
       self.db.tagRename(new_name, old_name)
+
+   def tagDelete(self, tname):
+      self.db.delTag(tname)
 

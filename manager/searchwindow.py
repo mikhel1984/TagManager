@@ -3,6 +3,7 @@
 from tkinter import Frame, Toplevel, Listbox, Button, Scrollbar
 from tkinter import Entry, StringVar, Menu
 import tkinter.simpledialog as dlg
+import tkinter.messagebox as msg
 import os
 
 SHOW_TAGS, SHOW_FILES = 0, 1
@@ -33,7 +34,9 @@ class SearchWindow:
       self.btn_frame.pack()
 
       self.c_menu = Menu(self.slave, tearoff=0)
+      self.c_menu.add_command(label='Add', command=lambda: self.exec(1))
       self.c_menu.add_command(label='Rename', command=self.tagRename)
+      self.c_menu.add_command(label='Delete', command=self.tagDelete)
 
       self.reset_btn.bind('<Button-1>', self.reset)
       self.slave.bind('<Control-r>', self.reset)
@@ -120,6 +123,13 @@ class SearchWindow:
       name = dlg.askstring("Rename tag", current)
       if name:
          self.fo.tagRename(name, current)
+         self.tags = self.fo.tagList()
+         self.reset(1)
+
+   def tagDelete(self):
+      current = self.file_lst.get('active')
+      if msg.askyesno("Delete?", current):
+         self.fo.tagDelete(current)
          self.tags = self.fo.tagList()
          self.reset(1)
 
