@@ -6,8 +6,6 @@ import time
 from tkinter import ttk
 from tkinter import Frame, Label, StringVar, Entry, PhotoImage
 
-#from fileoperation import FileOperation
-
 NAME, TYPE, SIZE, DATE = 'Name', 'Type', 'Size', 'Date'
 PREVIOUS_DIR = "  ..  "
 

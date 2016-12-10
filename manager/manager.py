@@ -14,6 +14,7 @@ ABOUT = \
 KEYS = \
 "Manager: \n\
 Lelt, Right - change directory\n\
+Ctrl+E - make panels equal\n\
 Ctrl+T - tag edit\n\
 Ctrl+Right - word complete\n\
 Ctrl+S - open search window\n\
@@ -44,6 +45,7 @@ class TagManager:
 
       self.root.bind('<Control-f>', self.openSearch)
       self.root.bind('<Control-q>', lambda x: self.root.destroy())
+      self.root.bind('<Control-e>', self.makeEqual)
 
       img = Image("photo", file="./manager/img/tm.gif")
       self.root.call('wm', 'iconphoto', self.root._w, img)
@@ -69,6 +71,10 @@ class TagManager:
          self.panel[src].refresh()
          self.panel[dst].refresh()
 
+   def makeEqual(self, ev):
+      src, dst = self.src, 1-self.src
+      self.panel[dst].writeFiles(self.panel[src].getPath())
+
    def menuTag(self):
       "Set menu for working with tags"
       fbutton = Menubutton(self.bar, text='Tags', underline=0)
@@ -91,6 +97,7 @@ class TagManager:
       menu.add_command(label='Move (F6)', command=lambda: self.move(1))
       menu.add_command(label='New folder (F7)',
                        command=lambda: self.panel[self.src].newDir(1))
+      menu.add_command(label='Equal panels (Ctrl+E)', command=lambda: self.makeEqual(1))
       menu.add_separator({})
       menu.add_command(label='Quit (Ctrl+Q)', command=lambda: self.root.destroy())
       cbutton.configure(menu=menu)
