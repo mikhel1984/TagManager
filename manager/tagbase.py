@@ -91,8 +91,8 @@ class TagBase:
 
    def delFolder(self, path):
       "Delete all contestant of folder from database"
-      self.db.cursor().execute("DELETE FROM files WHERE f_path LIKE ? AND f_path >= ?",
-                                (path+'%', path))
+      self.db.cursor().execute("DELETE FROM files WHERE f_path LIKE ?",
+                                (path+'%',))
       self.db.commit()
 
    def delTag(self, tname):
@@ -115,8 +115,7 @@ class TagBase:
 
    def changeDirPath(self, new_path, old_path):
       self.db.cursor().execute("UPDATE files SET f_path=REPLACE(f_path, ?, ?) "
-                               "WHERE f_path LIKE ? AND f_path >= ?",
-                               (old_path, new_path, old_path+'%', old_path))
+                               "WHERE f_path LIKE ?", (old_path, new_path, old_path+'%'))
       self.db.commit()
 
    def baseInfo(self):
@@ -173,11 +172,23 @@ class TagBase:
       if t_add:
          self.tagsToFile(path, nm, t_add)
 
-   def addCopy(self, copy_path, path, nm):
+   def addFileCopy(self, copy_path, path, nm):
       "Add copy of file"
       tags = self.getFileTags(path, nm)
       if tags:
          self.tagsToFile(copy_path, nm, tags)
+
+   def addDirCopy(self, dst_path, src_path):
+      cursor = self.db.cursor()
+      # get files from source directory
+      cursor.execute("SELECT f_path, f_name FROM files WHERE f_path LIKE ?", (src_path+'%',))
+      file_lst = cursor.fetchall()
+      # add new files
+      for f in file_lst:
+         tags = self.getFileTags(*f)
+         if tags:
+            self.tagsToFile(f[0].replace(src_path, dst_path), f[1], tags)
+
 
    def tagRename(self, new_tag, old_tag):
       "Change tag name"

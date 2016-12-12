@@ -79,13 +79,13 @@ class FileOperation:
          if os.path.isdir(src):
             # check existance
             if self.isExistDir(full_name): return
-            # self.db...
+            self.db.addDirCopy(full_name, src)
             shutil.copytree(src, full_name)
          else:
             # check existance
             if self.isExistFile(full_name): return
             # update database
-            self.db.addCopy(dst, *path)
+            self.db.addFileCopy(dst, *path)
             # copy
             shutil.copyfile(src, full_name)
          return True
@@ -101,7 +101,6 @@ class FileOperation:
          # check existance
          if (os.path.isfile(src) and self.isExistFile(full_path) or
              os.path.isdir(src) and self.isExistDir(full_path)): return
-         # self.db...
          # update database
          if os.path.isfile(src):
             self.db.changeFilePath(dst, *path)
