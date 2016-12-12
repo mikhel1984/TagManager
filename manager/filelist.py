@@ -55,7 +55,7 @@ class FileList(Frame):
       self.taglist.bind('<Return>', self.tagApply)
       self.taglist.bind('<Escape>', self.tagExit)
       self.taglist.bind('<Control-Right>', self.wordComplete)
-      self.bind('<FocusIn>', self.makeActive)
+      self.bind('<FocusIn>', self.makeActiveExt)
       self.bind('<FocusOut>', self.makeNonActive)
       # pack
       self.dir.grid(row=0, column=0, sticky='ns')
@@ -71,6 +71,7 @@ class FileList(Frame):
       self.last_tag_lst = []
       self.last_tag_num = 0
       self.position = None
+      self.hash = 0
       # images for elements
       self.folder_img = PhotoImage(file="./manager/img/folder.gif")
       self.file_img = PhotoImage(file="./manager/img/file.gif")
@@ -85,12 +86,14 @@ class FileList(Frame):
       # read files
       self.path_dir = []
       self.path_file = []
+      self.hash = 0
       for p in os.listdir(path):
          if p.startswith('.'): continue    # hidden files
          if os.path.isdir(os.path.join(path,p)):
             self.path_dir.append(p)
          else:
             self.path_file.append(p)
+         self.hash += hash(p)
       # read tags from base
       self.path_tags = {}
       for f in self.path_file:
@@ -98,7 +101,7 @@ class FileList(Frame):
       # sort and insert
       self.sort(NAME, False)
       if self.isactive:
-         self.makeActive(1)
+         self.makeActive()
 
    def filesize(self, x):
       "Pretty print for file size"
@@ -123,8 +126,19 @@ class FileList(Frame):
       c_path = self.dir_var.get()
       self.writeFiles(os.path.split(c_path)[0])
 
+   def makeActiveExt(self, ev):
+      # check for changings
+      tmp = 0
+      for p in os.listdir(self.getPath()):
+         if p.startswith('.'): continue
+         tmp += hash(p)
+      # update if need
+      if tmp != self.hash:
+         self.refresh()
+      self.makeActive()
 
-   def makeActive(self, ev):
+
+   def makeActive(self):
       "Set focus and cursor"
       self.isactive = True
       self.root.src = self.index
@@ -161,6 +175,7 @@ class FileList(Frame):
    def newDir(self, ev):
       "Create new directory"
       if self.fo.newDir(self.getPath()):
+         self.list.focus_set()
          self.refresh()
 
    def getPath(self):
@@ -242,7 +257,7 @@ class FileList(Frame):
          self.fo.setTags(self.getPath(), self.getName(), tag_lst)
       self.taglist['state']='readonly'
       self.path_tags[self.getName()] = tag_lst # add to current dictionary
-      self.makeActive(1)
+      self.makeActive()
 
    def tagExit(self, ev):
       "Exit without saving"
@@ -250,7 +265,7 @@ class FileList(Frame):
       self.tag_var.set(self.path_tags[self.getName()])
       # exit
       self.taglist['state']='readonly'
-      self.makeActive(1)
+      self.makeActive()
 
    def showTags(self, ev):
       "Show tags for current file"
