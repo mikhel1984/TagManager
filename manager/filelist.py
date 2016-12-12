@@ -8,18 +8,22 @@ from tkinter import Frame, Label, StringVar, Entry, PhotoImage
 
 NAME, TYPE, SIZE, DATE = 'Name', 'Type', 'Size', 'Date'
 PREVIOUS_DIR = "  ..  "
+INIT_PATH = "."
 
 class FileList(Frame):
+   "File representation as list with properties"
+
    def __init__(self, root, fileOp, index):
-      Frame.__init__(self, root.root)
+      Frame.__init__(self, root.root) # base class
+      # additional paremeters
       self.isactive = (index == 0)
       self.root = root
       self.index = index
-      self.reverse = False
+      self.reverse = False  # using reverse sorting
+      # widgets
       self.dir_var = StringVar()
       self.sum_var = StringVar()
       self.tag_var = StringVar()
-
       self.dir = Label(self, textvariable=self.dir_var, fg='blue')
       self.summary = Label(self, textvariable=self.sum_var)
       self.taglist = Entry(self, textvariable=self.tag_var, state='readonly')
@@ -36,7 +40,7 @@ class FileList(Frame):
       self.list.heading("#2", text=SIZE, command=lambda: self.sort(SIZE))
       self.list.heading("#3", text=DATE, command=lambda: self.sort(DATE))
       self.list.tag_configure('dir', foreground='blue')
-
+      # event binding
       self.list.tag_bind('dir', '<Return>', self.changeDirectory)
       self.list.tag_bind('dir', '<Right>', self.changeDirectory)
       self.list.tag_bind('dir', '<<TreeviewSelect>>', lambda x: self.tag_var.set(""))
@@ -47,58 +51,54 @@ class FileList(Frame):
       self.list.bind('<F7>', self.newDir)
       self.list.bind('<Delete>', self.remove)
       self.list.bind('<Left>', self.previousDirectory)
-
       self.taglist.bind('<Double-ButtonRelease-1>', self.tagEdit)
       self.taglist.bind('<Return>', self.tagApply)
       self.taglist.bind('<Escape>', self.tagExit)
       self.taglist.bind('<Control-Right>', self.wordComplete)
       self.bind('<FocusIn>', self.makeActive)
       self.bind('<FocusOut>', self.makeNonActive)
+      # pack
       self.dir.grid(row=0, column=0, sticky='ns')
       self.list.grid(row=1, column=0, sticky='ns')
       ysb.grid(row=1, column=1, sticky='ns')
       self.summary.grid(row=2, column=0)
       self.taglist.grid(row=3, column=0, columnspan=2, sticky='ew')
-
       self.grid()
-      self.position = None
-
+      # class for file operations
       self.fo = fileOp
-
+      # autocompleting
       self.last_tag = ""
       self.last_tag_lst = []
       self.last_tag_num = 0
-
+      self.position = None
+      # images for elements
       self.folder_img = PhotoImage(file="./manager/img/folder.gif")
       self.file_img = PhotoImage(file="./manager/img/file.gif")
-
-      abspath = os.path.abspath(".")
-      self.dir_var.set(abspath)
+      # path initialisation
+      abspath = os.path.abspath(INIT_PATH)
+      # fill panel
       self.writeFiles(abspath)
 
    def writeFiles(self, path):
-      "View list of files in current path"
+      "Show list of files in current path"
       self.dir_var.set(path)
+      # read files
       self.path_dir = []
       self.path_file = []
-      # read files
       for p in os.listdir(path):
+         if p.startswith('.'): continue    # hidden files
          if os.path.isdir(os.path.join(path,p)):
             self.path_dir.append(p)
          else:
             self.path_file.append(p)
-      # get tags
+      # read tags from base
       self.path_tags = {}
       for f in self.path_file:
          self.path_tags[f] = self.fo.getTags(path, f)
-      self.tag_var.set("")
       # sort and insert
       self.sort(NAME, False)
       if self.isactive:
          self.makeActive(1)
-      # correct db if need
-      #self.correctDatabase(path)
-
 
    def filesize(self, x):
       "Pretty print for file size"
@@ -110,7 +110,7 @@ class FileList(Frame):
       return "%.1f%s" % (x, letter[n])
 
    def changeDirectory(self, ev):
-      "Go to the next directory"
+      "Change current directory"
       folder = self.currentItem()[0]
       current_path = self.dir_var.get()
       if folder == PREVIOUS_DIR:
@@ -129,6 +129,7 @@ class FileList(Frame):
       self.isactive = True
       self.root.src = self.index
       iid = self.position if self.position else self.list.get_children()[0]
+      # set selection
       self.list.selection_set(iid)
       self.list.focus_set()
       self.list.focus(iid)
@@ -137,17 +138,18 @@ class FileList(Frame):
       "Clear cursor"
       self.isactive = False
       self.position = self.list.focus()
+      # clear selection
       self.list.selection_remove(self.list.get_children())
 
    def currentItem(self):
-      "File name under cursor"
+      "Return name and type under cursor"
       focus = self.list.focus() if self.isactive else self.position
       item = self.list.item(focus)
       tp = item['values'][0] if item['values'] else ''
       return item['text'], tp
 
    def rename(self, ev):
-      "Change the name of the file (directory)"
+      "Change name of a file (directory)"
       if self.fo.rename(self.getFocus()):
          self.refresh()
 
@@ -160,10 +162,6 @@ class FileList(Frame):
       "Create new directory"
       if self.fo.newDir(self.getPath()):
          self.refresh()
-
-   def isActive(self):
-      "Check if the current panel is active now"
-      return self.isactive
 
    def getPath(self):
       "Get current folder path"
@@ -205,32 +203,31 @@ class FileList(Frame):
                              reverse=self.reverse)
       else:
          return
+      # change reversion if need
       if rev: self.reverse = not self.reverse
-      # cleat and start a new list
+      # clear and start a new list
       self.list.delete(*self.list.get_children())
-      self.position = self.list.insert("", 0, text=PREVIOUS_DIR, tags=('dir'))
-      f_sum = 0
+      self.position = self.list.insert("", 0, text=PREVIOUS_DIR, tags='dir')
       # folders
       for d in self.path_dir:
-         if d.startswith('.'): continue
          tm = os.path.getmtime(os.path.join(path,d))
          self.list.insert("", "end", text=d, image=self.folder_img, values=
-                   ("","<DIR>",time.strftime("%d.%m.%Y", time.gmtime(tm))), tags=('dir'))
+                   ("","<DIR>",time.strftime("%d.%m.%Y", time.gmtime(tm))), tags='dir')
       # files
+      f_sum = 0
       for f in self.path_file:
-         if f.startswith('.'): continue
          stat = os.stat(os.path.join(path,f))
          tm = stat.st_mtime
          sz = stat.st_size
          f_sum += sz
          nm, tp = os.path.splitext(f)
-         self.list.insert("", "end", text=nm, tags=('file'), image=self.file_img, values=
-                           (tp ,self.filesize(sz), time.strftime("%d.%m.%Y", time.gmtime(tm))))
+         self.list.insert("", "end", text=nm, tags='file', image=self.file_img, values=
+                           (tp, self.filesize(sz), time.strftime("%d.%m.%Y", time.gmtime(tm))))
       self.sum_var.set("Folders: %d  Files: %d  Size: %s" % (
                           len(self.path_dir), len(self.path_file), self.filesize(f_sum)))
 
    def tagEdit(self, ev):
-      "Open entry for tag editing"
+      "Open entry for tag edition"
       self.position = self.list.focus()
       self.taglist['state']='normal'
       self.taglist.focus_set()
@@ -241,13 +238,17 @@ class FileList(Frame):
       tag_str = self.tag_var.get()
       tag_lst = [s.strip() for s in tag_str.split(',')]
       if tag_lst:
+         # save to database
          self.fo.setTags(self.getPath(), self.getName(), tag_lst)
       self.taglist['state']='readonly'
-      self.path_tags[self.getName()] = tag_lst
+      self.path_tags[self.getName()] = tag_lst # add to current dictionary
       self.makeActive(1)
 
    def tagExit(self, ev):
+      "Exit without saving"
+      # return last state
       self.tag_var.set(self.path_tags[self.getName()])
+      # exit
       self.taglist['state']='readonly'
       self.makeActive(1)
 
@@ -257,16 +258,21 @@ class FileList(Frame):
       self.tag_var.set(', '.join(self.path_tags[fname]))
 
    def wordComplete(self, ev):
+      "Complete tag by Ctrl+Right"
+      # get last tag
       tag_str = self.tag_var.get()
       tag_lst = [s.strip() for s in tag_str.split(',')]
       start = tag_lst[-1]
       if start == "": return
       if start.startswith(self.last_tag) and len(self.last_tag_lst) > 0:
+         # not first key press for current word
          self.last_tag_num = (self.last_tag_num + 1) % len(self.last_tag_lst)
       else:
-         self.last_tag_lst = self.fo.tagsStartsWith(start)
+         # first key press
+         self.last_tag_lst = self.fo.tagsStartsWith(start)  # find similar tags
          if len(self.last_tag_lst) == 0: return
          self.last_tag, self.last_tag_num = start, 0
+      # change string
       tag_lst[-1] = self.last_tag_lst[self.last_tag_num]
       self.tag_var.set(', '.join(tag_lst))
 

@@ -1,3 +1,4 @@
+# S.Mikhel, 2016
 """Window for file search"""
 
 from tkinter import Frame, Toplevel, Listbox, Button, Scrollbar
@@ -9,11 +10,12 @@ import os
 SHOW_TAGS, SHOW_FILES = 0, 1
 
 class SearchWindow:
+   "Window for file search using tags"
+
    def __init__(self, master, fileOp):
       self.slave = Toplevel(master)
       self.fo = fileOp
-      self.state = SHOW_TAGS
-
+      # widgets
       self.files = Frame(self.slave)
       self.file_lst = Listbox(self.files, selectmode='single', height=20, font='Verdanda 10')
       self.scroll = Scrollbar(self.files, command=self.file_lst.yview)
@@ -21,23 +23,21 @@ class SearchWindow:
       self.files.pack(side='top', fill='x', expand=1)
       self.file_lst.pack(side='left', fill='both', expand=1)
       self.scroll.pack(side='right', fill='y')
-
       self.var = StringVar()
       self.tags_edt = Entry(self.slave, textvariable=self.var, fg='red', font='Verdanda 10')
       self.tags_edt.pack(fill='x', expand=1)
-
       self.btn_frame = Frame(self.slave)
       self.search_btn = Button(self.btn_frame, text='Search', width=14)
       self.reset_btn = Button(self.btn_frame, text='Reset', width=14)
       self.search_btn.pack(side='left')
       self.reset_btn.pack(side='right')
       self.btn_frame.pack()
-
       self.c_menu = Menu(self.slave, tearoff=0)
       self.c_menu.add_command(label='Add', command=lambda: self.exec(1))
       self.c_menu.add_command(label='Rename', command=self.tagRename)
       self.c_menu.add_command(label='Delete', command=self.tagDelete)
-
+      self.slave.title(self.fo.baseInfo())
+      # bind
       self.reset_btn.bind('<Button-1>', self.reset)
       self.slave.bind('<Control-r>', self.reset)
       self.search_btn.bind('<Button-1>', self.printFiles)
@@ -50,17 +50,15 @@ class SearchWindow:
       self.file_lst.bind('<ButtonRelease-3>', self.callMenu)
       self.slave.bind('<Escape>', lambda x: self.slave.destroy())
       self.slave.bind('<Control-o>', self.openPath)
-
+      # state
       self.open_path = None
-
+      self.state = SHOW_TAGS
       self.last_tag = ""
       self.last_tag_lst = []
       self.last_tag_num = 0
-
+      # show all tags
       self.tags = self.fo.tagList()
       self.reset(1)
-
-      self.slave.title(self.fo.baseInfo())
 
    def run(self):
       "Start execution for search window"
@@ -83,9 +81,11 @@ class SearchWindow:
    def printFiles(self, ev):
       "Show result of search"
       self.state = SHOW_FILES
+      # get tags
       tag_str = self.var.get()
       tag_lst = [s.strip() for s in tag_str.split(',')]
       if not tag_lst: return
+      # find and show files
       self.files = self.fo.findFiles(tag_lst)
       self.file_lst.delete(0, 'end')
       self.file_lst['fg'] = 'black'
@@ -121,10 +121,12 @@ class SearchWindow:
          self.slave.destroy()
 
    def callMenu(self, ev):
+      "Create context menu for tags"
       if self.state == SHOW_TAGS:
          self.c_menu.post(ev.x_root, ev.y_root)
 
    def tagRename(self):
+      "Change name of tag under cursor"
       current = self.file_lst.get('active')
       name = dlg.askstring("Rename tag", current)
       if name:
@@ -133,6 +135,7 @@ class SearchWindow:
          self.reset(1)
 
    def tagDelete(self):
+      "Delete tag under cursor from base"
       current = self.file_lst.get('active')
       if msg.askyesno("Delete?", current):
          self.fo.tagDelete(current)
@@ -140,16 +143,20 @@ class SearchWindow:
          self.reset(1)
 
    def wordComplete(self, ev):
+      "Complete tag name"
+      # get last tag
       tag_str = self.var.get()
       tag_lst = [s.strip() for s in tag_str.split(',')]
       start = tag_lst[-1]
       if start == "": return
+      # find equial tags in base
       if start.startswith(self.last_tag) and len(self.last_tag_lst) > 0:
          self.last_tag_num = (self.last_tag_num + 1) % len(self.last_tag_lst)
       else:
          self.last_tag_lst = self.fo.tagsStartsWith(start)
          if len(self.last_tag_lst) == 0: return
          self.last_tag, self.last_tag_num = start, 0
+      # update string
       tag_lst[-1] = self.last_tag_lst[self.last_tag_num]
       self.var.set(', '.join(tag_lst))
 

@@ -1,15 +1,20 @@
+# S.Mikhel, 2016
 """Database manager commands"""
 
 import sqlite3
 import os
 
 class TagBase:
+   "Management of SQLite3 data base"
+
    def __init__(self, db_name):
+      # check base, open
       new_base = not os.path.exists(db_name)
       self.db = sqlite3.connect(db_name)
       self.db_name = os.path.split(db_name)[1]
       cursor = self.db.cursor()
       cursor.execute("PRAGMA foreign_keys = ON")
+      # create new if need
       if new_base:
          cursor.execute("CREATE TABLE files (fid INTEGER PRIMARY KEY, "
                         "f_name TEXT NOT NULL, f_path TEXT NOT NULL,"
@@ -30,9 +35,11 @@ class TagBase:
 
    def addFile(self, path, nm):
       "Insert new file"
+      # insert
       cursor = self.db.cursor()
       cursor.execute("INSERT INTO files VALUES (null, ?, ?)", (nm, path))
       self.db.commit()
+      # get id
       cursor.execute("SELECT last_insert_rowid()")
       f_id = cursor.fetchone()
       return f_id[0] if f_id else -1
@@ -46,9 +53,11 @@ class TagBase:
 
    def addTag(self, tag):
       "Insert new tag"
+      # insert
       cursor = self.db.cursor()
       cursor.execute("INSERT INTO tags VALUES (null, ?)", (tag.lower(),))
       self.db.commit()
+      # get id
       cursor.execute("SELECT last_insert_rowid()")
       t_id = cursor.fetchone()
       return t_id[0] if t_id else -1
@@ -62,12 +71,16 @@ class TagBase:
 
    def tagsToFile(self, path, nm, tags):
       "Bind tags to file"
+      # find file, add if need
       f_id = self.fileId(path, nm)
       if f_id == -1: f_id = self.addFile(path, nm)
+      # link tags
       for tag in tags:
-         if tag == "": continue
+         if tag == "": continue   # eliminate empty strings
+         # find or add tag
          t_id = self.tagId(tag)
          if t_id==-1: t_id = self.addTag(tag)
+         # insert
          self.db.cursor().execute("INSERT INTO filetags VALUES (?, ?)", (f_id, t_id))
       self.db.commit()
 
@@ -83,6 +96,7 @@ class TagBase:
       self.db.commit()
 
    def delTag(self, tname):
+      "Delete tag with given name"
       self.db.cursor().execute("DELETE FROM tags WHERE t_name=?", (tname,))
       self.db.commit()
 
@@ -110,27 +124,32 @@ class TagBase:
 
    def findFiles(self, tags):
       "Find files with given tags"
+      # get tag id-s
       tag_id = []
       for tag in tags:
          _id = self.tagId(tag)
          if _id != -1: tag_id.append(str(_id))
-      tag_id = tuple(tag_id)
+      #tag_id = tuple(tag_id)
       cursor = self.db.cursor()
       cursor.execute("SELECT f_path, f_name FROM files WHERE fid IN "
                      "(SELECT fid FROM filetags WHERE tid IN ({0}) "
                      "GROUP BY fid HAVING COUNT(*) >= {1})".format(','.join(tag_id), len(tag_id)))
+      # return list of files (path, name)
       return cursor.fetchall()
 
    def getFileTags(self, path, nm):
       "Get tags for current file"
-      f_id = self.fileId(path, nm)
+      #f_id = self.fileId(path, nm)
+      # find tags for current id
       cursor = self.db.cursor()
-      cursor.execute("SELECT t_name FROM tags NATURAL JOIN filetags "
-                     "WHERE filetags.fid=?", (f_id,))
+      #cursor.execute("SELECT t_name FROM tags NATURAL JOIN filetags "
+      #               "WHERE filetags.fid=?", (f_id,))
+      cursor.execute("SELECT t_name FROM tags NATURAL JOIN filetags NATURAL JOIN files f "
+                     "WHERE f.f_name=? AND f.f_path=?", (nm, path))
       return [tag[0] for tag in cursor.fetchall()]
 
    def breakLink(self, path, nm, tag):
-      "Unbind file and tag"
+      "Break link between file and tag"
       self.db.cursor().execute("DELETE FROM filetags WHERE "
          "fid = (SELECT f.fid FROM files f WHERE f.f_name=? AND f.f_path=?) AND "
          "tid = (SELECT t.tid FROM tags t WHERE t.t_name=?)", (nm, path, tag))
@@ -139,10 +158,12 @@ class TagBase:
    def updateFileTags(self, path, nm, new_tags):
       "Update list of tags for given file"
       old_tags = self.getFileTags(path, nm)
-      t_add = [i for i in new_tags if i not in old_tags]
-      t_rem = [j for j in old_tags if j not in new_tags]
+      t_add = [i for i in new_tags if i not in old_tags]  # tags for adding
+      t_rem = [j for j in old_tags if j not in new_tags]  # tags for removing
+      # remove
       for r in t_rem:
          self.breakLink(path, nm, r)
+      # add
       if t_add:
          self.tagsToFile(path, nm, t_add)
 
@@ -158,11 +179,11 @@ class TagBase:
                                (new_tag, old_tag))
       self.db.commit()
 
-   def getFilesInFolder(self, path):
-      "List of files in folder"
-      cursor = self.db.cursor()
-      cursor.execute("SELECT f_name FROM files WHERE f_path=?", (path,))
-      return [name[0] for name in cursor.fetchall()]
+   #def getFilesInFolder(self, path):
+   #   "List of files in folder"
+   #   cursor = self.db.cursor()
+   #   cursor.execute("SELECT f_name FROM files WHERE f_path=?", (path,))
+   #   return [name[0] for name in cursor.fetchall()]
 
    def tagList(self):
       "List of all tags"
@@ -171,12 +192,16 @@ class TagBase:
       return [tag[0] for tag in cursor.fetchall()]
 
    def correct(self):
+      "Remove files which are no more exists"
       cursor = self.db.cursor()
+      # get all files
       cursor.execute("SELECT f_path, f_name FROM files")
+      # remove if not exist
       for f in cursor.fetchall():
          if not os.path.exists(os.path.join(*f)): self.delFile(*f)
 
    def tagsStartsWith(self, start):
+      "Find tags which starts with current word"
       cursor = self.db.cursor()
       cursor.execute("SELECT t_name FROM tags WHERE t_name LIKE ?"
                      "ORDER BY t_name", (start+'%',))
