@@ -105,6 +105,8 @@ class FileOperation:
          # update database
          if os.path.isfile(src):
             self.db.changeFilePath(dst, *path)
+         else:
+            self.db.changeDirPath(full_path, src)
          # move
          shutil.move(src, full_path)
          return True

@@ -113,6 +113,12 @@ class TagBase:
                                (new_path, nm, old_path))
       self.db.commit()
 
+   def changeDirPath(self, new_path, old_path):
+      self.db.cursor().execute("UPDATE files SET f_path=REPLACE(f_path, ?, ?) "
+                               "WHERE f_path LIKE ? AND f_path >= ?",
+                               (old_path, new_path, old_path+'%', old_path))
+      self.db.commit()
+
    def baseInfo(self):
       "Get information about database"
       cursor = self.db.cursor()
