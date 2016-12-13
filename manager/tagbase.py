@@ -114,6 +114,7 @@ class TagBase:
       self.db.commit()
 
    def changeDirPath(self, new_path, old_path):
+      "Change path to directory"
       self.db.cursor().execute("UPDATE files SET f_path=REPLACE(f_path, ?, ?) "
                                "WHERE f_path LIKE ?", (old_path, new_path, old_path+'%'))
       self.db.commit()
@@ -134,7 +135,6 @@ class TagBase:
       for tag in tags:
          _id = self.tagId(tag)
          if _id != -1: tag_id.append(str(_id))
-      #tag_id = tuple(tag_id)
       cursor = self.db.cursor()
       cursor.execute("SELECT f_path, f_name FROM files WHERE fid IN "
                      "(SELECT fid FROM filetags WHERE tid IN ({0}) "
@@ -144,11 +144,7 @@ class TagBase:
 
    def getFileTags(self, path, nm):
       "Get tags for current file"
-      #f_id = self.fileId(path, nm)
-      # find tags for current id
       cursor = self.db.cursor()
-      #cursor.execute("SELECT t_name FROM tags NATURAL JOIN filetags "
-      #               "WHERE filetags.fid=?", (f_id,))
       cursor.execute("SELECT t_name FROM tags NATURAL JOIN filetags NATURAL JOIN files f "
                      "WHERE f.f_name=? AND f.f_path=?", (nm, path))
       return [tag[0] for tag in cursor.fetchall()]
@@ -179,6 +175,7 @@ class TagBase:
          self.tagsToFile(copy_path, nm, tags)
 
    def addDirCopy(self, dst_path, src_path):
+      "Add copy of whole directory"
       cursor = self.db.cursor()
       # get files from source directory
       cursor.execute("SELECT f_path, f_name FROM files WHERE f_path LIKE ?", (src_path+'%',))
@@ -195,12 +192,6 @@ class TagBase:
       self.db.cursor().execute("UPDATE tags SET t_name=? WHERE t_name=?",
                                (new_tag, old_tag))
       self.db.commit()
-
-   #def getFilesInFolder(self, path):
-   #   "List of files in folder"
-   #   cursor = self.db.cursor()
-   #   cursor.execute("SELECT f_name FROM files WHERE f_path=?", (path,))
-   #   return [name[0] for name in cursor.fetchall()]
 
    def tagList(self):
       "List of all tags"

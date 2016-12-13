@@ -19,7 +19,6 @@ class FileOperation:
    "Execute file operations and contain database inside"
 
    def __init__(self):
-      self.base_name = DB_NAME    # ???
       self.db = TagBase(DB_NAME)
 
    def rename(self, old_name):
@@ -140,14 +139,6 @@ class FileOperation:
    def setTags(self, path, name, tags):
       "Update file tags"
       self.db.updateFileTags(path, name, tags)
-
-   #def getFiles(self, path):
-   #   "Get list of files for given folder"
-   #   return self.db.getFilesInFolder(path)
-
-   #def deleteFromBase(self, path, nm):
-   #   "Delete file from base"
-   #   self.db.delFile(path, nm)
 
    def baseInfo(self):
       "String with statistic about database"
