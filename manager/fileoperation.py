@@ -10,7 +10,8 @@ import tkinter.messagebox as msg
 from .tagbase import TagBase
 
 IMG = 'ristretto'
-RUN_CMD = {'jpg':IMG, 'bmp':IMG, 'png':IMG}
+DOC = 'evince'
+RUN_CMD = {'jpg':IMG, 'bmp':IMG, 'png':IMG, 'pdf':DOC}
 
 DB_NAME = './manager/db/tags.db'
 TRASH = 'gvfs-trash'
