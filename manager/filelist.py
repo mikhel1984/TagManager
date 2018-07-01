@@ -8,7 +8,7 @@ from tkinter import Frame, Label, StringVar, Entry, PhotoImage
 
 NAME, TYPE, SIZE, DATE = 'Name', 'Type', 'Size', 'Date'
 PREVIOUS_DIR = "  ..  "
-INIT_PATH = "."
+INIT_PATH = ".."     # parent directory
 
 class FileList(Frame):
    "File representation as list with properties"
