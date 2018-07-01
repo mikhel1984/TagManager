@@ -2,4 +2,4 @@
 todo.txt
 *.swp
 __pycache__
-/manager/db/*
+#/manager/db/*
