@@ -152,6 +152,10 @@ class FileOperation:
    def findFiles(self, tags):
       "Find files with given tags"
       return self.db.findFiles(tags)
+      
+   def findByName(self, name):
+      "Find files using part of file name"
+      return self.db.findByName(name)
 
    def correctDb(self):
       "Remove from database files wich are no more exist"
@@ -170,3 +174,6 @@ class FileOperation:
       "Get list of tags starts with given word"
       return self.db.tagsStartsWith(start)
 
+   def getRandomFile(self):
+      "Get random element from the database"
+      return self.db.getRandom()

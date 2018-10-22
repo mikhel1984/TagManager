@@ -18,7 +18,7 @@ Lelt, Right - change directory\n\
 Ctrl+E - make panels equal\n\
 Ctrl+T - tag edit\n\
 Ctrl+Right - word complete\n\
-Ctrl+S - open search window\n\
+Ctrl+F - open search window\n\
 \nSearch window: \n\
 Ctrl+S - search \n\
 Ctrl+R - reset\n\
@@ -45,6 +45,7 @@ class TagManager:
       self.root.bind('<F5>', self.copy)
       self.root.bind('<F6>', self.move)
       self.root.bind('<F1>', lambda x: msg.showinfo("Keys", KEYS))
+      self.root.bind('<F9>', lambda x: self.fo.execute(self.fo.getRandomFile()))
       self.root.bind('<Control-f>', self.openSearch)
       self.root.bind('<Control-q>', lambda x: self.root.destroy())
       self.root.bind('<Control-e>', self.makeEqual)

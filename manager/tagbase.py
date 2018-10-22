@@ -3,6 +3,7 @@
 
 import sqlite3
 import os
+import random
 
 class TagBase:
    "Management of SQLite3 data base"
@@ -32,6 +33,8 @@ class TagBase:
                         "(SELECT DISTINCT tid FROM filetags); "
                         "END")
       self.db.commit()
+      # prepare random
+      random.seed()
 
    def addFile(self, path, nm):
       "Insert new file"
@@ -142,6 +145,11 @@ class TagBase:
       # return list of files (path, name)
       return cursor.fetchall()
 
+   def findByName(self, nm):
+      cursor = self.db.cursor()
+      cursor.execute("SELECT f_path, f_name FROM files WHERE f_name LIKE ?", ('%'+nm+'%',))
+      return cursor.fetchall()
+   
    def getFileTags(self, path, nm):
       "Get tags for current file"
       cursor = self.db.cursor()
@@ -231,4 +239,20 @@ class TagBase:
    def close(self):
       "Close database"
       self.db.close()
+      
+   def getRandom(self):
+      "Choose random field from the database"
+      cursor = self.db.cursor()
+      # get range
+      cursor.execute("SELECT MIN(fid) FROM files")
+      a = cursor.fetchone()[0]
+      cursor.execute("SELECT MAX(fid) FROM files")
+      b = cursor.fetchone()[0]
+      if a == b:
+         return ""
+      while True:
+         cursor.execute("SELECT f_path, f_name FROM files WHERE fid=?", (random.randint(a,b),))
+         lst = cursor.fetchone()
+         if lst:
+            return os.path.join(*lst)
 

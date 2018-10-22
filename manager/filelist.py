@@ -43,8 +43,10 @@ class FileList(Frame):
       # event binding
       self.list.tag_bind('dir', '<Return>', self.changeDirectory)
       self.list.tag_bind('dir', '<Right>', self.changeDirectory)
+      self.list.tag_bind('dir', '<Double-ButtonRelease-1>', self.changeDirectory)
       self.list.tag_bind('dir', '<<TreeviewSelect>>', lambda x: self.tag_var.set(""))
       self.list.tag_bind('file', '<Return>', self.openFile)
+      self.list.tag_bind('file', '<Double-ButtonRelease-1>', self.openFile)
       self.list.tag_bind('file', '<<TreeviewSelect>>', self.showTags)
       self.list.tag_bind('file', '<Control-t>', self.tagEdit)
       self.list.bind('<F2>', self.rename)
@@ -166,6 +168,7 @@ class FileList(Frame):
       "Change name of a file (directory)"
       if self.fo.rename(self.getFocus()):
          self.refresh()
+         self.list.focus_set()
 
    def remove(self, ev):
       "Remove file (directory)"

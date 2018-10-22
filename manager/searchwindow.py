@@ -36,7 +36,6 @@ class SearchWindow:
       self.c_menu.add_command(label='Add', command=lambda: self.exec(1))
       self.c_menu.add_command(label='Rename', command=self.tagRename)
       self.c_menu.add_command(label='Delete', command=self.tagDelete)
-      self.slave.title(self.fo.baseInfo())
       # bind
       self.reset_btn.bind('<Button-1>', self.reset)
       self.slave.bind('<Control-r>', self.reset)
@@ -76,6 +75,7 @@ class SearchWindow:
       self.file_lst['fg'] = 'red'
       for tag in self.tags:
          self.file_lst.insert('end', tag)
+      self.slave.title(self.fo.baseInfo())
       self.file_lst.focus_set()
 
    def printFiles(self, ev):
@@ -87,6 +87,12 @@ class SearchWindow:
       if not tag_lst: return
       # find and show files
       self.files = self.fo.findFiles(tag_lst)
+      tmp = tag_lst[0]
+      if tmp.startswith('?'):    # try to find files with given part of name
+         self.files = self.fo.findByName(tmp.strip('? '))
+      else:
+         self.files = self.fo.findFiles(tag_lst)
+      self.slave.title("Found: %d" % len(self.files))
       self.file_lst.delete(0, 'end')
       self.file_lst['fg'] = 'black'
       for grp in self.files:
