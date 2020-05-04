@@ -25,7 +25,7 @@ class SearchWindow:
       self.scroll.pack(side='right', fill='y')
       self.var = StringVar()
       self.tags_edt = Entry(self.slave, textvariable=self.var, fg='red', font='Verdanda 10')
-      self.tags_edt.pack(fill='x', expand=1)
+      self.tags_edt.pack(fill='x', expand=1)      
       self.btn_frame = Frame(self.slave)
       self.search_btn = Button(self.btn_frame, text='Search', width=14)
       self.reset_btn = Button(self.btn_frame, text='Reset', width=14)
@@ -36,6 +36,7 @@ class SearchWindow:
       self.c_menu.add_command(label='Add', command=lambda: self.exec(1))
       self.c_menu.add_command(label='Rename', command=self.tagRename)
       self.c_menu.add_command(label='Delete', command=self.tagDelete)
+      #self.slave.title(self.fo.baseInfo())
       # bind
       self.reset_btn.bind('<Button-1>', self.reset)
       self.slave.bind('<Control-r>', self.reset)
@@ -62,7 +63,8 @@ class SearchWindow:
    def run(self):
       "Start execution for search window"
       self.slave.grab_set()
-      self.slave.focus_set()
+      #self.slave.focus_set()
+      self.tags_edt.focus_set()
       self.slave.wait_window()
       return self.open_path
 
@@ -76,7 +78,7 @@ class SearchWindow:
       for tag in self.tags:
          self.file_lst.insert('end', tag)
       self.slave.title(self.fo.baseInfo())
-      self.file_lst.focus_set()
+      #self.file_lst.focus_set()
 
    def printFiles(self, ev):
       "Show result of search"
@@ -86,7 +88,6 @@ class SearchWindow:
       tag_lst = [s.strip() for s in tag_str.split(',')]
       if not tag_lst: return
       # find and show files
-      self.files = self.fo.findFiles(tag_lst)
       tmp = tag_lst[0]
       if tmp.startswith('?'):    # try to find files with given part of name
          self.files = self.fo.findByName(tmp.strip('? '))

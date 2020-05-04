@@ -1,4 +1,4 @@
-# S.Mikhel, 2016
+# S.Mikhel, 2016-2020
 """Main window of file manager"""
 
 from tkinter import Frame, Menubutton, Menu, Image
@@ -10,19 +10,20 @@ from .searchwindow import SearchWindow
 
 ABOUT = \
 "TagManager - double panel manager with file tags\n\n\
-   2016 S.Mikhel - camis.dat@gmail.com"
+   2016-2020 S.Mikhel - mikhel.sk@gmail.com"
 
 KEYS = \
 "Manager: \n\
 Lelt, Right - change directory\n\
-Ctrl+E - make panels equal\n\
-Ctrl+T - tag edit\n\
+= - make panels equal\n\
+[ - tag edit\n\
 Ctrl+Right - word complete\n\
-Ctrl+F - open search window\n\
+/ - open search window\n\
 \nSearch window: \n\
 Ctrl+S - search \n\
 Ctrl+R - reset\n\
-Ctrl+O - open directory with file"
+Ctrl+O - open directory with file\n\
+? word - find files with this word"
 
 
 class TagManager:
@@ -46,9 +47,9 @@ class TagManager:
       self.root.bind('<F6>', self.move)
       self.root.bind('<F1>', lambda x: msg.showinfo("Keys", KEYS))
       self.root.bind('<F9>', lambda x: self.fo.execute(self.fo.getRandomFile()))
-      self.root.bind('<Control-f>', self.openSearch)
+      self.root.bind('/', self.openSearch)    
       self.root.bind('<Control-q>', lambda x: self.root.destroy())
-      self.root.bind('<Control-e>', self.makeEqual)
+      self.root.bind('=',self.makeEqual)
       # icon, title
       img = Image("photo", file="./manager/img/tm.gif")
       self.root.call('wm', 'iconphoto', self.root._w, img)
@@ -89,8 +90,8 @@ class TagManager:
       fbutton = Menubutton(self.bar, text='Tags', underline=0)
       fbutton.grid(row=0, column=1, sticky='w')
       menu = Menu(fbutton, tearoff = 0)
-      menu.add_command(label='Search... (Ctrl+F)', command=lambda: self.openSearch(1))
-      menu.add_command(label='Edit (Ctrl+T)', command=lambda: self.panel[self.src].tagEdit(1))
+      menu.add_command(label='Search... (/)', command=lambda: self.openSearch(1))
+      menu.add_command(label='Edit ([)', command=lambda: self.panel[self.src].tagEdit(1))
       menu.add_command(label="Don't save (Esc)", command=lambda: self.panel[self.src].tagExit(1))
       menu.add_command(label='Correct DB', command=lambda: self.fo.correctDb())
       fbutton.configure(menu=menu)
@@ -104,7 +105,7 @@ class TagManager:
       menu.add_command(label='Copy (F5)', command=lambda: self.copy(1))
       menu.add_command(label='Move (F6)', command=lambda: self.move(1))
       menu.add_command(label='New folder (F7)', command=lambda: self.panel[self.src].newDir(1))
-      menu.add_command(label='Equal panels (Ctrl+E)', command=lambda: self.makeEqual(1))
+      menu.add_command(label='Equal panels (=)', command=lambda: self.makeEqual(1))
       menu.add_separator({})
       menu.add_command(label='Quit (Ctrl+Q)', command=lambda: self.root.destroy())
       cbutton.configure(menu=menu)

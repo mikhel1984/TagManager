@@ -8,7 +8,7 @@ from tkinter import Frame, Label, StringVar, Entry, PhotoImage
 
 NAME, TYPE, SIZE, DATE = 'Name', 'Type', 'Size', 'Date'
 PREVIOUS_DIR = "  ..  "
-INIT_PATH = ".."     # parent directory
+INIT_PATH = ".."
 
 class FileList(Frame):
    "File representation as list with properties"
@@ -49,6 +49,7 @@ class FileList(Frame):
       self.list.tag_bind('file', '<Double-ButtonRelease-1>', self.openFile)
       self.list.tag_bind('file', '<<TreeviewSelect>>', self.showTags)
       self.list.tag_bind('file', '<Control-t>', self.tagEdit)
+      self.list.tag_bind('file', '[',self.tagEdit)
       self.list.bind('<F2>', self.rename)
       self.list.bind('<F7>', self.newDir)
       self.list.bind('<Delete>', self.remove)
@@ -82,7 +83,7 @@ class FileList(Frame):
       # fill panel
       self.writeFiles(abspath)
 
-   def writeFiles(self, path):
+   def writeFiles(self, path,focus=None):
       "Show list of files in current path"
       self.dir_var.set(path)
       # read files
@@ -102,6 +103,9 @@ class FileList(Frame):
          self.path_tags[f] = self.fo.getTags(path, f)
       # sort and insert
       self.sort(NAME, False)
+      if focus:
+         n = self.path_dir.index(focus) 
+         self.position = self.list.get_children()[n+1]
       if self.isactive:
          self.makeActive()
 
@@ -126,7 +130,9 @@ class FileList(Frame):
    def previousDirectory(self, ev):
       "Go to the previous directory"
       c_path = self.dir_var.get()
-      self.writeFiles(os.path.split(c_path)[0])
+      path,directory = os.path.split(c_path)
+      #self.writeFiles(os.path.split(c_path)[0])
+      self.writeFiles(path,directory)
 
    def makeActiveExt(self, ev):
       # check for changings
@@ -172,8 +178,13 @@ class FileList(Frame):
 
    def remove(self, ev):
       "Remove file (directory)"
-      if self.fo.remove(self.getFocus()):
+      focus = self.list.focus()
+      items = self.list.get_children()
+      ind = items.index(focus)
+      if self.fo.remove(self.getFocus()):         
          self.refresh()
+         self.position = self.list.get_children()[ind-1]         
+         self.makeActive()
 
    def newDir(self, ev):
       "Create new directory"
