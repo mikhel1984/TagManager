@@ -1,6 +1,8 @@
 # TagManager
 Double panel manager in tkinter with tags for file collection.
 
+![Screenshot](https://github.com/mikhel1984/TagManager/blob/master/manager/img/screenshot.png)
+
 ## Tag definition
 
 Bottom part of each panel contains interactive line. If the file under cursor has any tags, they will be presented in this line. If you want to add/edit tags, double click bottom part of window (or press "[" symbol) and write required words, separated with coma as delimeter. After that click somewhere else to save your changes.  
