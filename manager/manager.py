@@ -1,5 +1,6 @@
-# S.Mikhel, 2016-2020
-"""Main window of file manager"""
+"""
+Main window of file manager
+"""
 
 from tkinter import Frame, Menubutton, Menu, Image
 import tkinter.messagebox as msg
@@ -10,7 +11,7 @@ from .searchwindow import SearchWindow
 
 ABOUT = \
 "TagManager - double panel manager with file tags\n\n\
-   2016-2020 S.Mikhel - mikhel.sk@gmail.com"
+https://github.com/mikhel1984/TagManager"
 
 KEYS = \
 "Manager: \n\

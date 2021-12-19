@@ -1,5 +1,6 @@
-# S.Mikhel, 2016
-"""Represent list of files as a panel"""
+"""
+Represent list of files as a panel
+"""
 
 import os
 import time

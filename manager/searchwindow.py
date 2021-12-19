@@ -1,5 +1,6 @@
-# S.Mikhel, 2016
-"""Window for file search"""
+"""
+Window for file search
+"""
 
 from tkinter import Frame, Toplevel, Listbox, Button, Scrollbar
 from tkinter import Entry, StringVar, Menu

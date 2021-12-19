@@ -1,5 +1,6 @@
-# S.Mikhel, 2016
-"""Database manager commands"""
+"""
+Database manager commands
+"""
 
 import sqlite3
 import os

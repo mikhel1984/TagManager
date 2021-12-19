@@ -1,5 +1,6 @@
-# S.Mikhel, 2016
-"""Operation with files and interface for database"""
+"""
+Operation with files and interface for database
+"""
 
 import os
 import shutil
@@ -8,19 +9,20 @@ import tkinter.simpledialog as dlg
 import tkinter.messagebox as msg
 
 from .tagbase import TagBase
-
-IMG = 'ristretto'
-DOC = 'evince'
-RUN_CMD = {'jpg':IMG, 'bmp':IMG, 'png':IMG, 'pdf':DOC}
+from .config import programs, delete
 
 DB_NAME = './manager/db/tags.db'
-TRASH = 'gvfs-trash'
 
 class FileOperation:
    "Execute file operations and contain database inside"
 
    def __init__(self):
       self.db = TagBase(DB_NAME)
+      # get program list
+      self.run_cmd = {}
+      for k in programs:
+        for elt in programs[k]:
+          self.run_cmd[elt] = k
 
    def rename(self, old_name):
       "Rename file (directory)"
@@ -52,8 +54,8 @@ class FileOperation:
             self.db.delFolder(fname)
          else:
             self.db.delFile(*path)
-         # remove to trash
-         subprocess.call([TRASH, fname])
+         # remove (to trash)
+         subprocess.call([delete, fname])
          return True
       else:
          return False
@@ -116,8 +118,8 @@ class FileOperation:
       "Execute current file"
       nm, tp = os.path.splitext(os.path.split(fname)[1])
       if tp: tp = tp[1:].lower()  # remove '.', correct size
-      if tp in RUN_CMD.keys():
-         return subprocess.call([RUN_CMD[tp], fname])
+      if tp in self.run_cmd.keys():
+         return subprocess.call([self.run_cmd[tp], fname])
 
    def isExistFile(self, path):
       "Check file existance, show error"
