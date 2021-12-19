@@ -1,10 +1,12 @@
 #!/usr/bin/python3
 """
-2016-2021, S.Mikhel
+S.Mikhel
+
+https://github.com/mikhel1984/TagManager
 """
 
 from tkinter import Tk
 from manager import TagManager
 
 root = Tk()
-TagManager(root)
+TagManager(root, "1.0.0")

@@ -30,7 +30,7 @@ Ctrl+O - open directory with file\n\
 class TagManager:
    "Double panel manager window"
 
-   def __init__(self, root):
+   def __init__(self, root, ver):
       self.root = root
       self.fo = FileOperation()
       # widgets
@@ -54,7 +54,7 @@ class TagManager:
       # icon, title
       img = Image("photo", file="./manager/img/tm.gif")
       self.root.call('wm', 'iconphoto', self.root._w, img)
-      self.root.title('TagManager')
+      self.root.title('TagManager v.' + ver)
       # evaluate
       self.root.mainloop()
 
