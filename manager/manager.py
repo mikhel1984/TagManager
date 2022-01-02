@@ -32,6 +32,10 @@ class TagManager:
 
    def __init__(self, root, ver):
       self.root = root
+      # resize
+      self.root.rowconfigure(1, weight=1)
+      self.root.columnconfigure(0, weight=1)
+      self.root.columnconfigure(1, weight=1)
       self.fo = FileOperation()
       # widgets
       self.panel = (FileList(self, self.fo, 0),
@@ -41,8 +45,8 @@ class TagManager:
       self.menuFile()
       self.menuTag()
       self.menuHelp()
-      self.panel[0].grid(row=1, column=0, sticky='ns')
-      self.panel[1].grid(row=1, column=1, sticky='ns')
+      self.panel[0].grid(row=1, column=0, sticky='nswe')
+      self.panel[1].grid(row=1, column=1, sticky='nswe')
       # bind events
       self.root.bind('<F5>', self.copy)
       self.root.bind('<F6>', self.move)

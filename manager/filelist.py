@@ -66,11 +66,14 @@ class FileList(Frame):
       self.bind('<FocusIn>', self.makeActiveExt)
       self.bind('<FocusOut>', self.makeNonActive)
       # pack
-      self.dir.grid(row=0, column=0, sticky='ns')
-      self.list.grid(row=1, column=0, sticky='ns')
+      self.dir.grid(row=0, column=0, sticky='ew')
+      self.list.grid(row=1, column=0, sticky='nsew')
       ysb.grid(row=1, column=1, sticky='ns')
-      self.summary.grid(row=2, column=0)
+      self.summary.grid(row=2, column=0, sticky='ew')
       self.taglist.grid(row=3, column=0, columnspan=2, sticky='ew')
+      # configure resize
+      self.rowconfigure(1, weight=1)
+      self.columnconfigure(0, weight=1)
       self.grid()
       # class for file operations
       self.fo = fileOp
