@@ -21,6 +21,7 @@ class FileList(Frame):
       self.root = root
       self.index = index
       self.reverse = False  # using reverse sorting
+      self.buf = '' # buffer for quick search
       # widgets
       self.dir_var = StringVar()
       self.sum_var = StringVar()
@@ -55,6 +56,8 @@ class FileList(Frame):
       self.list.bind('<F7>', self.newDir)
       self.list.bind('<Delete>', self.remove)
       self.list.bind('<Left>', self.previousDirectory)
+      self.list.bind('<KeyPress>', self.quickSearch)
+      self.list.bind('<<TreeviewSelect>>', lambda x: self.bufReset())
       self.taglist.bind('<Double-ButtonRelease-1>', self.tagEdit)
       self.taglist.bind('<Return>', self.tagApply)
       self.taglist.bind('<Escape>', self.tagExit)
@@ -136,7 +139,7 @@ class FileList(Frame):
       self.writeFiles(path,directory)
 
    def makeActiveExt(self, ev):
-      # check for changings
+      "Check for changes and make active"
       tmp = 0
       for p in os.listdir(self.getPath()):
          if p.startswith('.'): continue
@@ -182,9 +185,9 @@ class FileList(Frame):
       focus = self.list.focus()
       items = self.list.get_children()
       ind = items.index(focus)
-      if self.fo.remove(self.getFocus()):         
+      if self.fo.remove(self.getFocus()):
          self.refresh()
-         self.position = self.list.get_children()[ind-1]         
+         self.position = self.list.get_children()[ind-1]
          self.makeActive()
 
    def newDir(self, ev):
@@ -305,4 +308,20 @@ class FileList(Frame):
       # change string
       tag_lst[-1] = self.last_tag_lst[self.last_tag_num]
       self.tag_var.set(', '.join(tag_lst))
+      
+   def quickSearch(self, ev):
+      "Press letters for quick search"
+      v = ev.char
+      if not(v.isalnum() or v in (' ','_','-')):
+         return
+      self.buf += v
+      # search
+      for i, v in enumerate(self.list.get_children()):
+         if self.list.item(v)['text'].startswith(self.buf):
+            self.list.see(v)
+            break
+            
+   def bufReset(self):
+      "Reset the quick search buffer"
+      self.buf = ''
 
