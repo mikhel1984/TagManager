@@ -9,5 +9,5 @@ Bottom part of each panel contains interactive line. If the file under cursor ha
 
 ## File search
 
-Click "/" to open a search window. Here you can see list of all possible tags and an input line. Write into this line desired tags, separated with coma (or double click them in the list abow), and push "Search" button. You will get list of found files. Double click any file name to execute it or "Ctrl+O" to open correspondant directory.  
+Click "/" to open a search window. Here you can see list of all possible tags and an input line. Write into this line desired tags, separated with coma (or double click them in the list abow), and push "Search" button. You will get list of found files. Double click any file name to execute it or "Ctrl+O" to open the corresponding directory.
 Use "? _word_" to find all files where _word_ is a part of the name. 

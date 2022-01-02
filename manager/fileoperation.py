@@ -9,7 +9,7 @@ import tkinter.simpledialog as dlg
 import tkinter.messagebox as msg
 
 from .tagbase import TagBase
-from .config import programs, delete
+from tmconfig import programs, delete
 
 DB_NAME = './manager/db/tags.db'
 
