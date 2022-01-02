@@ -42,6 +42,7 @@ class FileList(Frame):
       self.list.heading("#2", text=SIZE, command=lambda: self.sort(SIZE))
       self.list.heading("#3", text=DATE, command=lambda: self.sort(DATE))
       self.list.tag_configure('dir', foreground='blue')
+      self.list.tag_configure('empty', foreground='#666666')
       # event binding
       self.list.tag_bind('dir', '<Return>', self.changeDirectory)
       self.list.tag_bind('dir', '<Right>', self.changeDirectory)
@@ -254,7 +255,8 @@ class FileList(Frame):
          sz = stat.st_size
          f_sum += sz
          nm, tp = os.path.splitext(f)
-         self.list.insert("", "end", text=nm, tags='file', image=self.file_img, values=
+         ftags = 'file' if self.path_tags[f] else ('file','empty')
+         self.list.insert("", "end", text=nm, tags=ftags, image=self.file_img, values=
                            (tp, self.filesize(sz), time.strftime("%d.%m.%Y", time.gmtime(tm))))
       self.sum_var.set("Folders: %d  Files: %d  Size: %s" % (
                           len(self.path_dir), len(self.path_file), self.filesize(f_sum)))
@@ -274,7 +276,10 @@ class FileList(Frame):
          # save to database
          self.fo.setTags(self.getPath(), self.getName(), tag_lst)
       self.taglist['state']='readonly'
-      self.path_tags[self.getName()] = tag_lst # add to current dictionary
+      # add to current dictionary
+      self.path_tags[self.getName()] = tag_lst 
+      # update background
+      self.list.item(self.position, tags = 'file' if tag_lst else ('file','empty'))
       self.makeActive()
 
    def tagExit(self, ev):
